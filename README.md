@@ -13,4 +13,10 @@ Now I am implementing Small World Network to connect devices which are far away.
 
 The situation here is as the users grow we see the link between any two user is less than 6 link which makes it easier for any user to connect with another.
 
+-------------------------------
 
+run in terminal
+```
+flutter pub get
+flutter run
+```
