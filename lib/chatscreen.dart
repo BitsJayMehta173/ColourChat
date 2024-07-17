@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'globals.dart';
 import 'message_model.dart';
 import 'message_widget.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -69,6 +70,27 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_controller.text.isEmpty) return;
     // String str="";
     String encoded="";
+    if(receiverLangpass==false && receiverLang!=""){
+      receiverLangpass=true;
+      String temp="";
+      String temp1="";
+
+      for(int i=0;i<receiverLang.length;i++){
+        if(receiverLang[i]==":"){
+          temp1=temp;
+          temp="";
+          continue;
+        }
+        if(receiverLang[i]=='\n'){
+          keytablee[temp1]=temp;
+          reversekeytablee[temp]=temp1;
+          temp1="";
+          temp="";
+          continue;
+        }
+        temp+=receiverLang[i];
+      }
+    }
     for (int i = 0; i < _controller.text.length; i++) {
       // str+=_controller.text[i];
       encoded+=keytablee[_controller.text[i]]!;
@@ -197,20 +219,34 @@ class _HomeScreenState extends State<HomeScreen> {
         qrText+=String.fromCharCode(i);
         qrText+=":";
         tablegen(0, 9,String.fromCharCode(i));
-        qrText+='\n';
+        qrText+=keytablee[String.fromCharCode(i)]!;
+        qrText+="\n";
+        // keytablereciever[temp]=temp1;
+        // reversekeytablereciever[temp1]=temp;
       }
 
       for (int i = 'A'.codeUnitAt(0); i <= 'Z'.codeUnitAt(0); i++) {
         qrText+=String.fromCharCode(i);
+        // String temp=qrText;
         qrText+=":";
         tablegen(0, 9,String.fromCharCode(i));
+        // String temp1=keytablee[String.fromCharCode(i)]!;
+        // keytablereciever[temp]=temp1;
+        // reversekeytablereciever[temp1]=temp;
+
         qrText+=keytablee[String.fromCharCode(i)]!;
-        qrText+='\n';
+        qrText+="\n";
       }
-
+      tablegen(0, 9," ");
+      qrText+=" :";
+      qrText+=keytablee[" "]!;
+      qrText+="\n";
       tablegen(0, 9,"uniquepublickey");
-      
-
+      qrText+="uniquepublickey:";
+      qrText+=keytablee["uniquepublickey"]!;
+      qrText+="\n";
+      // receiverLang=qrText;
+      print(qrText);
   }
 
   @override
@@ -233,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Text field to enter data for QR code generation as sometimes there can be mistakes we are not auto clearing but button can be added to clear
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: TextField(
                 // (IMPORTANT) QR codes can hold up to 7,089 characters of numeric data, 4,296 characters of alphanumeric data, or 2,953 bytes (8-bit binary data) at the highest error correction level (Level H).
                 onChanged: (newText) {
@@ -259,16 +295,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
-                // else{
-                //   qrText="{\na: '6P1y',\nb: '9HFy',\nc: '55FP',\nd: '4178',\ne: '7xuX',\nf: 'vuuv',\ng: 'cPh4',\nh: 'sjz1',\ni: 'Ee9B',\nj: 'xoe6',\nk: '2dS2',\nl: '2T6D',\nm: 'OH3u',\nn: 'z1fH',\no: 'n558',\np: 'OZtZ',\nq: '2PHD',\nr: 'Ee34',\ns: 'r8jd',\nt: 'y8je',\nu: 'Gxnn',\nv: 'A9u0',\nw: '3dnj',\nx: '310x',\ny: '50g3',z: '107H',\nA: '56ki',\nB: '2EeR',\nC: '32xt',\nD: '00E2',\nE: 'J2g7',\nF: '93M5',G: '6Hf9',\nH: 'Tu2J',\nI: 'bQoo',\nJ: 'pTKE',\nK: '4El6',\nL: 'u4qv',\nM: '8DX2',\nN: 'ar4P',\nO: 'i45K',\nP: '4AsG',\nQ: '0cVR',\nR: 'nUlV',\nS: 't61B',\nT: '73fv',\nU: 'P0Pn',\nV: 'PWPt',\nW: '0tzH',\nX: '33yC',\nY: '4138',\nZ: '9nj5',\n' ': 'ubN1',\nuniquepublickey: 'njaW'\n}";
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => GenerateQRScreen(qrText: qrText),
-                //       // In main.dart itself
-                //     ),
-                //   );
-                // }
+                else{
+                  // qrText="{\na: '6P1y',\nb: '9HFy',\nc: '55FP',\nd: '4178',\ne: '7xuX',\nf: 'vuuv',\ng: 'cPh4',\nh: 'sjz1',\ni: 'Ee9B',\nj: 'xoe6',\nk: '2dS2',\nl: '2T6D',\nm: 'OH3u',\nn: 'z1fH',\no: 'n558',\np: 'OZtZ',\nq: '2PHD',\nr: 'Ee34',\ns: 'r8jd',\nt: 'y8je',\nu: 'Gxnn',\nv: 'A9u0',\nw: '3dnj',\nx: '310x',\ny: '50g3',z: '107H',\nA: '56ki',\nB: '2EeR',\nC: '32xt',\nD: '00E2',\nE: 'J2g7',\nF: '93M5',G: '6Hf9',\nH: 'Tu2J',\nI: 'bQoo',\nJ: 'pTKE',\nK: '4El6',\nL: 'u4qv',\nM: '8DX2',\nN: 'ar4P',\nO: 'i45K',\nP: '4AsG',\nQ: '0cVR',\nR: 'nUlV',\nS: 't61B',\nT: '73fv',\nU: 'P0Pn',\nV: 'PWPt',\nW: '0tzH',\nX: '33yC',\nY: '4138',\nZ: '9nj5',\n' ': 'ubN1',\nuniquepublickey: 'njaW'\n}";
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GenerateQRScreen(qrText: qrText),
+                      // In main.dart itself
+                    ),
+                  );
+                }
               },
               child: Text('Generate QR Code'),
             ),

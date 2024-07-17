@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+import 'globals.dart';
+
 class QRViewExample extends StatefulWidget {
   @override
   _QRViewExampleState createState() => _QRViewExampleState();
@@ -44,6 +46,7 @@ class _QRViewExampleState extends State<QRViewExample> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
+        receiverLang=scanData.code!;
       });
     });
   }
