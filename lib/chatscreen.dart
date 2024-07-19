@@ -28,7 +28,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
   final Map<int,int> vis={};
   final TextEditingController _controller = TextEditingController();
-  final DatabaseReference messageRef = FirebaseDatabase.instance.ref().child('messages');
+  final DatabaseReference sendermessageRef = FirebaseDatabase.instance.ref().child('${globals.phonenumber}/friendlist/${globals.currfriend}/messages');
+  final DatabaseReference receivermessageRef = FirebaseDatabase.instance.ref().child('${globals.currfriend}/friendlist/${globals.phonenumber}/messages');
   List<Map<String, dynamic>> messages = [];
 
 
@@ -40,7 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   void _listenForMessages() {
-    messageRef.onValue.listen((event) {
+    sendermessageRef.onValue.listen((event) {
       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
       final List<Map<String, dynamic>> newMessages = [];
       data.forEach((key, value) {
@@ -107,7 +108,13 @@ class _ChatScreenState extends State<ChatScreen> {
     //   _messages.add(message);
     // });
 
-    messageRef.push().set({
+    sendermessageRef.push().set({
+      'text': encoded,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'isSentByMe': true,
+      'phonenumber':globals.phonenumber,
+    });
+    receivermessageRef.push().set({
       'text': encoded,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'isSentByMe': true,
@@ -115,12 +122,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     _controller.clear();
     // encoded="";
-  }
-
-  void _onTextChanged(String value) {
-    setState(() {
-      globals.phonenumber = value;
-    });
   }
 
   @override
@@ -165,10 +166,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
           ),
-          TextField(
-                    decoration: InputDecoration(hintText: 'Enter Phone Number'),
-                    onChanged: _onTextChanged,
-                  )
         ],
       ),
     );
