@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'globals.dart';
 import 'message_model.dart';
@@ -7,11 +8,14 @@ import 'qr_view_example.dart';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'globals.dart' as globals;
+import 'package:path_provider/path_provider.dart';
 
 final Map<String, String> keytablee = {};
 final Map<String, String> reversekeytablee = {};
 final Map<String, bool> vis = {};
 
+
+String qrText = ""; // Initial QR text input
 class ChatScreen extends StatefulWidget {
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -36,11 +40,68 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    checkFileExists();
     _listenForMessages();
   }
 
+Future<void> checkFileExists() async {
+  try {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path/$currfriend.txt');  // Replace 'your_filename.txt' with the actual file name
+
+    if (await file.exists()) {
+      print('File exists');
+      _readQRTextfromFile();
+    } else {
+      print('File does not exist');
+    }
+  } catch (e) {
+    print('Error checking file existence: $e');
+  }
+}
+
+Future<void> _readQRTextfromFile() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final path = directory.path;
+      final file = File('$path/$currfriend.txt');
+      String contents = await file.readAsString();
+      print(contents);
+      receiverLang=contents;
+      // setState(() {
+      //   qrText = contents;
+      // });
+      
+      String temp="";
+      String temp1="";
+
+      for(int i=0;i<receiverLang.length;i++){
+        if(receiverLang[i]==":"){
+          temp1=temp;
+          temp="";
+          continue;
+        }
+        if(receiverLang[i]=='\n'){
+          keytablee[temp1]=temp;
+          reversekeytablee[temp]=temp1;
+          temp1="";
+          temp="";
+          continue;
+        }
+        temp+=receiverLang[i];
+      }
+      // We have to make a data map for the second time as first time needs to compute second time doesnt need to
+
+      receiverLangpass=true;
+    } catch (e) {
+      print("Error reading file: $e");
+    }
+  }
 
   void _listenForMessages() {
+    
+    // _readQRText(qrText);
     sendermessageRef.onValue.listen((event) {
       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
       final List<Map<String, dynamic>> newMessages = [];
@@ -66,6 +127,22 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     });
   }
+
+  // Future<void> _readQRText(String qrText) async {
+    
+  //   try {
+  //     final directory = await getApplicationDocumentsDirectory();
+  //     final path = directory.path;
+  //     final file = File('$path/$currfriend.txt');
+  //     String contents = await file.readAsString();
+  //     print(contents);
+  //     setState(() {
+  //       qrText = contents;
+  //     });
+  //   } catch (e) {
+  //     print("Error reading file: $e");
+  //   }
+  // }
   
   void _sendMessage() {
     if (_controller.text.isEmpty) return;
@@ -178,81 +255,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String qrText = ""; // Initial QR text input
-
-  void tablegen(int min,int max,String curr){
-      bool flag = true;
-      while (flag) {
-        String val = "";
-        flag = false;
-        for (int i = 0; i < 4; i++) {
-        int choice = Random().nextInt(3) + 1;
-          if (choice == 1) {
-            int x = Random().nextInt(max - min + 1) + min;
-            val += x.toString();
-          }
-          if (choice == 2) {
-          String y = String.fromCharCode(Random().nextInt('z'.codeUnitAt(0) - 'a'.codeUnitAt(0) + 1) + 'a'.codeUnitAt(0));
-          val += y;
-          }
-          if (choice == 3) {
-          String z = String.fromCharCode(Random().nextInt('Z'.codeUnitAt(0) - 'A'.codeUnitAt(0) + 1) + 'A'.codeUnitAt(0));
-          val += z;
-          }
-          }
-          if (vis.containsKey(val)) {
-            flag = true;
-            continue;
-          }
-          vis[val] = true;
-          reversekeytablee[val] = curr;
-          keytablee[curr] = val;
-        }
-  }
-
-  void _hashcreate(){
-
-      for (int i = 'a'.codeUnitAt(0); i <= 'z'.codeUnitAt(0); i++) {
-        qrText+=String.fromCharCode(i);
-        qrText+=":";
-        tablegen(0, 9,String.fromCharCode(i));
-        qrText+=keytablee[String.fromCharCode(i)]!;
-        qrText+="\n";
-        // keytablereciever[temp]=temp1;
-        // reversekeytablereciever[temp1]=temp;
-      }
-
-      for (int i = 'A'.codeUnitAt(0); i <= 'Z'.codeUnitAt(0); i++) {
-        qrText+=String.fromCharCode(i);
-        // String temp=qrText;
-        qrText+=":";
-        tablegen(0, 9,String.fromCharCode(i));
-        // String temp1=keytablee[String.fromCharCode(i)]!;
-        // keytablereciever[temp]=temp1;
-        // reversekeytablereciever[temp1]=temp;
-
-        qrText+=keytablee[String.fromCharCode(i)]!;
-        qrText+="\n";
-      }
-      tablegen(0, 9," ");
-      qrText+=" :";
-      qrText+=keytablee[" "]!;
-      qrText+="\n";
-      tablegen(0, 9,"uniquepublickey");
-      qrText+="uniquepublickey:";
-      qrText+=keytablee["uniquepublickey"]!;
-      qrText+="\n";
-      // receiverLang=qrText;
-      print(qrText);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _hashcreate(); // Call your function here
-}
-
-
+  // String qrText = ""; // Initial QR text input
 
   @override
   Widget build(BuildContext context) {
@@ -323,10 +326,119 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class GenerateQRScreen extends StatelessWidget {
+class GenerateQRScreen extends StatefulWidget {
   final String qrText;
 
   const GenerateQRScreen({Key? key, required this.qrText}) : super(key: key);
+
+  @override
+  _GenerateQRScreenState createState() => _GenerateQRScreenState();
+}
+
+class _GenerateQRScreenState extends State<GenerateQRScreen> {
+  String qrText="";
+
+  void tablegen(int min,int max,String curr){
+      bool flag = true;
+      while (flag) {
+        String val = "";
+        flag = false;
+        for (int i = 0; i < 4; i++) {
+        int choice = Random().nextInt(3) + 1;
+          if (choice == 1) {
+            int x = Random().nextInt(max - min + 1) + min;
+            val += x.toString();
+          }
+          if (choice == 2) {
+          String y = String.fromCharCode(Random().nextInt('z'.codeUnitAt(0) - 'a'.codeUnitAt(0) + 1) + 'a'.codeUnitAt(0));
+          val += y;
+          }
+          if (choice == 3) {
+          String z = String.fromCharCode(Random().nextInt('Z'.codeUnitAt(0) - 'A'.codeUnitAt(0) + 1) + 'A'.codeUnitAt(0));
+          val += z;
+          }
+          }
+          if (vis.containsKey(val)) {
+            flag = true;
+            continue;
+          }
+          vis[val] = true;
+          reversekeytablee[val] = curr;
+          keytablee[curr] = val;
+        }
+  }
+
+  Future<void> _hashcreate() async {
+
+      for (int i = 'a'.codeUnitAt(0); i <= 'z'.codeUnitAt(0); i++) {
+        qrText+=String.fromCharCode(i);
+        qrText+=":";
+        tablegen(0, 9,String.fromCharCode(i));
+        qrText+=keytablee[String.fromCharCode(i)]!;
+        qrText+="\n";
+        // keytablereciever[temp]=temp1;
+        // reversekeytablereciever[temp1]=temp;
+      }
+
+      for (int i = 'A'.codeUnitAt(0); i <= 'Z'.codeUnitAt(0); i++) {
+        qrText+=String.fromCharCode(i);
+        // String temp=qrText;
+        qrText+=":";
+        tablegen(0, 9,String.fromCharCode(i));
+        // String temp1=keytablee[String.fromCharCode(i)]!;
+        // keytablereciever[temp]=temp1;
+        // reversekeytablereciever[temp1]=temp;
+
+        qrText+=keytablee[String.fromCharCode(i)]!;
+        qrText+="\n";
+      }
+      tablegen(0, 9," ");
+      qrText+=" :";
+      qrText+=keytablee[" "]!;
+      qrText+="\n";
+      tablegen(0, 9,"uniquepublickey");
+      qrText+="uniquepublickey:";
+      qrText+=keytablee["uniquepublickey"]!;
+      qrText+="\n";
+      // receiverLang=qrText;
+      print(qrText);
+      await _storeQRText();
+
+      // We need to maintain two files one current and another history which i have not done here 
+  }
+
+  Future<void> _storeQRText() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    // /data/user/0/com.example.chatapp/app_flutter/qrText.txt
+    final file = File('$path/$currfriend.txt');
+    await file.writeAsString(qrText);
+    print('$path/qrText.txt');
+    print('done');
+    // _readQRText();
+  }
+
+// Future<void> _readQRText() async {
+//     try {
+//       final directory = await getApplicationDocumentsDirectory();
+//       final path = directory.path;
+//       final file = File('$path/$currfriend.txt');
+//       String contents = await file.readAsString();
+//       print(contents);
+//       // setState(() {
+//       //   qrText = contents;
+//       // });
+//     } catch (e) {
+//       print("Error reading file: $e");
+//     }
+//   }
+
+  @override
+  void initState() {
+    super.initState();
+    _hashcreate(); // Call your function here
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -344,7 +456,7 @@ class GenerateQRScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Navigate back to previous screen
+                Navigator.pop(context);
               },
               child: Text('Go Back'),
             ),

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'globals.dart';
 
@@ -39,15 +42,27 @@ class _QRViewExampleState extends State<QRViewExample> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
+  Future<void> _storeQRText() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    // /data/user/0/com.example.chatapp/app_flutter/qrText.txt
+    final file = File('$path/$currfriend.txt');
+    await file.writeAsString(receiverLang);
+    print('$path/qrText.txt');
+    print('done');
+  }
+
+  void _onQRViewCreated(QRViewController controller){
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       setState(() {
         result = scanData;
         receiverLang=scanData.code!;
-      });
+        print(scanData.code);
+        });
+        await _storeQRText();
     });
   }
 
