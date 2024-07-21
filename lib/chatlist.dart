@@ -1,9 +1,12 @@
+import 'package:chatapp/addFriend.dart';
 import 'package:chatapp/chatscreen.dart';
+import 'package:chatapp/graph.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'globals.dart' as globals;
 import 'package:path_provider/path_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -23,8 +26,7 @@ class Contact {
   final String userName;
   final String phoneNumber;
 
-
-  Contact(this.userName,this.phoneNumber);
+  Contact(this.userName, this.phoneNumber);
 
   factory Contact.fromMap(Map<String, dynamic> data) {
     return Contact(
@@ -41,7 +43,9 @@ class ContactListPage extends StatefulWidget {
 
 class _ContactListPageState extends State<ContactListPage> {
   final List<Contact> contacts = [];
-  final DatabaseReference contactRef = FirebaseDatabase.instance.ref().child('${globals.phonenumber}/friendlist');
+  final DatabaseReference contactRef = FirebaseDatabase.instance
+      .ref()
+      .child('${globals.phonenumber}/friendlist');
 
   @override
   void initState() {
@@ -70,7 +74,8 @@ class _ContactListPageState extends State<ContactListPage> {
       final List<Contact> newContacts = [];
       // print(data);
       data.forEach((key, value) {
-        newContacts.add(Contact.fromMap(Map<String, dynamic>.from(value)));
+        // if(value['phoneNumber']!=globals.phonenumber) //later we have to include this to avoid our name
+          newContacts.add(Contact.fromMap(Map<String, dynamic>.from(value)));
       });
       // print(newContacts);
       setState(() {
@@ -96,14 +101,26 @@ class _ContactListPageState extends State<ContactListPage> {
             title: Text(contacts[index].userName),
             subtitle: Text(contacts[index].phoneNumber),
             onTap: () {
-              globals.currfriend=contacts[index].phoneNumber;
+              globals.currfriend = contacts[index].phoneNumber;
               Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatScreen()),
-                    );
+                context,
+                MaterialPageRoute(builder: (context) => ChatScreen()),
+              );
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Action to be performed when button is pressed
+          print('FAB pressed!');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Addfriend()),
+          );
+        },
+        child: Icon(Icons.add),
+        // backgroundColor: Colors.blue,
       ),
     );
   }
