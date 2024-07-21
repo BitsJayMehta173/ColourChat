@@ -51,7 +51,7 @@ class _ContactListPageState extends State<ContactListPage> {
     //   'friendlist':{
     //     'friend1':{
     //       'userName':'Ana',
-    //       'phoneNumber':'6000144826',
+    //       'phoneNumber':'6000155937',
     //       'messages':{
     //           'text': 'Hi',
     //           'timestamp': DateTime.now().millisecondsSinceEpoch,

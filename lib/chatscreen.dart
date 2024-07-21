@@ -148,6 +148,7 @@ Future<void> _readQRTextfromFile() async {
     if (_controller.text.isEmpty) return;
     // String str="";
     String encoded="";
+    // You can directly map but just to make no mistakes used manual method and to increase the code lines LOL just fix it later JaM
     if(receiverLangpass==false && receiverLang!=""){
       receiverLangpass=true;
       String temp="";
