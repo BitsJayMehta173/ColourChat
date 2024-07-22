@@ -6,3 +6,9 @@ String receiverLang="";
 bool receiverLangpass=false;
 String currfriend="";
 
+String myname="";
+String hername="";
+
+String processUPK="";
+bool pUPKstatus=false;
+

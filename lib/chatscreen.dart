@@ -40,9 +40,48 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    print("started");
+    print(currfriend);
+    print(pUPKstatus);
+    if(pUPKstatus==true){
+      pubhashcreate();
+    }
     checkFileExists();
     _listenForMessages();
   }
+
+Future<void> pubhashcreate() async {
+      final directory = await getApplicationDocumentsDirectory();
+      final path = directory.path;
+      // /data/user/0/com.example.chatapp/app_flutter/qrText.txt
+      // final filePath = File('$path/dictionary/$processUPK.txt');
+      // for now lets test on 1.txt
+      var file = File('$path/1.txt');
+
+      try {
+        qrText = await file.readAsString();
+
+      } catch (e) {
+        print('Error reading file: $e');
+      }
+      
+      print(qrText);
+      await _storeQRText(qrText);
+
+      // We need to maintain two files one current and another history which i have not done here 
+  }
+
+  Future<void> _storeQRText(String qrText) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    // /data/user/0/com.example.chatapp/app_flutter/qrText.txt
+    final file = File('$path/$currfriend.txt');
+    await file.writeAsString(qrText);
+    print('$path/$currfriend.txt');
+    print('done');
+    // _readQRText();
+  }
+
 
 Future<void> checkFileExists() async {
   try {
@@ -67,6 +106,7 @@ Future<void> _readQRTextfromFile() async {
       final path = directory.path;
       final file = File('$path/$currfriend.txt');
       String contents = await file.readAsString();
+      print("contents here okay");
       print(contents);
       receiverLang=contents;
       // setState(() {
@@ -83,6 +123,8 @@ Future<void> _readQRTextfromFile() async {
           continue;
         }
         if(receiverLang[i]=='\n'){
+          print(temp1);
+          print(temp);
           keytablee[temp1]=temp;
           reversekeytablee[temp]=temp1;
           temp1="";
@@ -149,6 +191,7 @@ Future<void> _readQRTextfromFile() async {
     // String str="";
     String encoded="";
     // You can directly map but just to make no mistakes used manual method and to increase the code lines LOL just fix it later JaM
+    print("sending message");
     if(receiverLangpass==false && receiverLang!=""){
       receiverLangpass=true;
       String temp="";
@@ -172,7 +215,10 @@ Future<void> _readQRTextfromFile() async {
     }
     for (int i = 0; i < _controller.text.length; i++) {
       // str+=_controller.text[i];
+      print(_controller.text[i]);
+      print(keytablee[_controller.text[i]]);
       encoded+=keytablee[_controller.text[i]]!;
+      print("added message");
   }
   // String temp=keytablee['a']!;
   // print('Type of numberAsString: ${temp.runtimeType}');
